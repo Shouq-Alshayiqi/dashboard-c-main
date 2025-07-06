@@ -1,0 +1,32 @@
+/* Example font face declarations - replace with your actual font files */
+@font-face {
+  font-family: 'Neo Sans Arabic';
+  src: url('/fonts/NeoSansArabicforCenomi-Rg.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neo Sans Arabic';
+  src: url('/fonts/NeoSansArabicforCenomi-Md.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'YourFontName';
+  src: url('/fonts/your-font-semibold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'YourFontName';
+  src: url('/fonts/your-font-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+} 

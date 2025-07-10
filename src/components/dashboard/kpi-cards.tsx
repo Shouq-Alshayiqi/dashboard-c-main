@@ -37,6 +37,7 @@ export const KPICards = ({ selectedMonth = 'All', selectedTeam = 'All' }) => {
             <div className="text-[#4B2D84] text-3xl font-semibold mt-1">
               {formatGLA(TOTAL_GLA_TARGET)} sqm
             </div>
+            <div className="text-[#4B2D84]/60 text-xs mt-1">Total GLA: 100k sqm</div>
           </div>
         </div>
       </div>

@@ -70,74 +70,72 @@ export const WeightedPipeline = ({ selectedMonth = 'All', selectedTeam = 'All' }
 
   return (
     <Card className="h-full overflow-hidden bg-white">
-      <div className="px-6 pt-4 pb-6 h-full flex flex-col">
+      <div className="px-6 pt-2 pb-2 h-full flex flex-col">
         <Title className="text-[#4B2D84] font-medium text-sm mb-4">Weighted Pipeline Projection</Title>
-        <div className="flex-1 min-h-0 flex flex-col">
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={data}
-                margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
-                barSize={32}
-                barGap={8}
+        <div className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+              barSize={32}
+              barGap={8}
+            >
+              <XAxis 
+                dataKey="name"
+                stroke="#6B7280"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                dy={10}
+                height={45}
+                tickMargin={8}
+              />
+              <YAxis
+                stroke="#6B7280"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => value ? `${(value / 1000).toFixed(1)}k` : '-'}
+                domain={[0, 'dataMax + 2000']}
+              />
+              <Tooltip content={<CustomTooltip />} />
+                <Bar
+                dataKey="Total GLA" 
+                fill="#6B4E9B" 
+                radius={[4, 4, 0, 0]}
               >
-                <XAxis 
-                  dataKey="name"
-                  stroke="#6B7280"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  dy={10}
-                  height={45}
-                  tickMargin={8}
-                />
-                <YAxis
-                  stroke="#6B7280"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => value ? `${(value / 1000).toFixed(1)}k` : '-'}
-                  domain={[0, 'dataMax + 2000']}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                  <Bar
+                <LabelList 
                   dataKey="Total GLA" 
-                  fill="#6B4E9B" 
-                  radius={[4, 4, 0, 0]}
-                >
-                  <LabelList 
-                    dataKey="Total GLA" 
-                    position="top" 
-                    formatter={formatValue}
-                    style={{ fill: "#6B4E9B", fontSize: "11px" }}
-                    offset={10}
-                    />
-                </Bar>
-                <Bar 
-                  dataKey="Weighted GLA" 
-                  fill="#4B2D84" 
-                  radius={[4, 4, 0, 0]}
-                >
-                  <LabelList 
-                    dataKey="Weighted GLA" 
-                    position="top" 
-                    formatter={formatValue}
-                    style={{ fill: "#4B2D84", fontSize: "11px" }}
-                    offset={10}
+                  position="top" 
+                  formatter={formatValue}
+                  style={{ fill: "#6B4E9B", fontSize: "11px" }}
+                  offset={10}
                   />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+              </Bar>
+              <Bar 
+                dataKey="Weighted GLA" 
+                fill="#4B2D84" 
+                radius={[4, 4, 0, 0]}
+              >
+                <LabelList 
+                  dataKey="Weighted GLA" 
+                  position="top" 
+                  formatter={formatValue}
+                  style={{ fill: "#4B2D84", fontSize: "11px" }}
+                  offset={10}
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-6 items-center justify-center text-xs">
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#6B4E9B' }} />
+            <span className="text-gray-600">Total GLA</span>
           </div>
-          <div className="mt-4 flex flex-wrap gap-6 items-center justify-center text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#6B4E9B' }} />
-              <span className="text-gray-600">Total GLA</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#4B2D84' }} />
-              <span className="text-gray-600">Weighted GLA</span>
-            </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#4B2D84' }} />
+            <span className="text-gray-600">Weighted GLA</span>
           </div>
         </div>
       </div>

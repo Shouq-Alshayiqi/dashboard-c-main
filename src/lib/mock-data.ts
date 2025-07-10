@@ -134,3 +134,219 @@ export const dealerPipelineTableData = [
   { name: 'Ethan Scott', totalGLA: 3900, dealsCount: 6, avgDealSize: 650, conversionRate: 0.40, avgDealDuration: 75, month: 'May', team: 'Central' },
   { name: 'Mia Clark', totalGLA: 3700, dealsCount: 5, avgDealSize: 740, conversionRate: 0.36, avgDealDuration: 80, month: 'Jun', team: 'Western' },
 ] 
+
+export type Deal = {
+  name: string;
+  brandName: string;
+  groupName: string;
+  stores: number;
+  stage: string;
+  leaseManager: string;
+  createdOn: string;
+};
+
+// Helper to generate a random 5-digit number as a string
+const getRandomDealName = (() => {
+  const used = new Set();
+  return () => {
+    let num;
+    do {
+      num = Math.floor(10000 + Math.random() * 90000);
+    } while (used.has(num));
+    used.add(num);
+    return `#${num}`;
+  };
+})();
+
+const createdOnDates = [
+  '01/01/2025',
+  '01/02/2025',
+  '01/03/2025',
+  '01/04/2025',
+  '01/05/2025',
+  '01/06/2025',
+  '01/07/2025',
+];
+
+export const dealsData: Deal[] = [
+  {
+    name: getRandomDealName(),
+    brandName: "Nike",
+    groupName: "Athletics Group",
+    stores: 3,
+    stage: "Contract signed",
+    leaseManager: "Sarah Johnson",
+    createdOn: createdOnDates[0],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Zara",
+    groupName: "Fashion Group",
+    stores: 2,
+    stage: "Proposal signed",
+    leaseManager: "Michael Chen",
+    createdOn: createdOnDates[1],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Apple",
+    groupName: "Tech Group",
+    stores: 1,
+    stage: "Ejar issued",
+    leaseManager: "Emma Davis",
+    createdOn: createdOnDates[2],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Adidas",
+    groupName: "Athletics Group",
+    stores: 1,
+    stage: "AMC approved",
+    leaseManager: "Lisa Anderson",
+    createdOn: createdOnDates[3],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Gucci",
+    groupName: "Luxury Group",
+    stores: 1,
+    stage: "Location agreed",
+    leaseManager: "Robert Brown",
+    createdOn: createdOnDates[4],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Starbucks",
+    groupName: "F&B Group",
+    stores: 4,
+    stage: "Proposal issued",
+    leaseManager: "Olivia Wilson",
+    createdOn: createdOnDates[5],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "H&M",
+    groupName: "Fashion Group",
+    stores: 2,
+    stage: "Discussion initiated",
+    leaseManager: "David Lee",
+    createdOn: createdOnDates[6],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Samsung",
+    groupName: "Tech Group",
+    stores: 5,
+    stage: "Planned",
+    leaseManager: "Sophia Martinez",
+    createdOn: createdOnDates[0],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Carrefour",
+    groupName: "Retail Group",
+    stores: 1,
+    stage: "Terms Agreed",
+    leaseManager: "James Smith",
+    createdOn: createdOnDates[1],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Chanel",
+    groupName: "Luxury Group",
+    stores: 1,
+    stage: "Proposal signed",
+    leaseManager: "Emily Clark",
+    createdOn: createdOnDates[2],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Sony",
+    groupName: "Tech Group",
+    stores: 2,
+    stage: "Proposal issued",
+    leaseManager: "Daniel Kim",
+    createdOn: createdOnDates[3],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "KFC",
+    groupName: "F&B Group",
+    stores: 3,
+    stage: "AMC initiated",
+    leaseManager: "Grace Lee",
+    createdOn: createdOnDates[4],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "VOX Cinemas",
+    groupName: "Entertainment Group",
+    stores: 1,
+    stage: "Contract issued",
+    leaseManager: "William Turner",
+    createdOn: createdOnDates[5],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Pull&Bear",
+    groupName: "Fashion Group",
+    stores: 2,
+    stage: "Proposal signed",
+    leaseManager: "Ava Scott",
+    createdOn: createdOnDates[6],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Huawei",
+    groupName: "Tech Group",
+    stores: 1,
+    stage: "AMC approved",
+    leaseManager: "Benjamin Hall",
+    createdOn: createdOnDates[0],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Rolex",
+    groupName: "Luxury Group",
+    stores: 1,
+    stage: "Location agreed",
+    leaseManager: "Mia Walker",
+    createdOn: createdOnDates[1],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Toys R Us",
+    groupName: "Retail Group",
+    stores: 2,
+    stage: "Planned",
+    leaseManager: "Lucas Young",
+    createdOn: createdOnDates[2],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Fitness Time",
+    groupName: "Health Group",
+    stores: 1,
+    stage: "Terms Agreed",
+    leaseManager: "Charlotte King",
+    createdOn: createdOnDates[3],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "Jarir Bookstore",
+    groupName: "Retail Group",
+    stores: 1,
+    stage: "Discussion initiated",
+    leaseManager: "Henry Adams",
+    createdOn: createdOnDates[4],
+  },
+  {
+    name: getRandomDealName(),
+    brandName: "McDonald's",
+    groupName: "F&B Group",
+    stores: 3,
+    stage: "Proposal signed",
+    leaseManager: "Ella Perez",
+    createdOn: createdOnDates[5],
+  },
+]; 

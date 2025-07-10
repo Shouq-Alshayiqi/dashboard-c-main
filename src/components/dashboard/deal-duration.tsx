@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, Title } from "@tremor/react"
-import { PIPELINE_STAGES, PIPELINE_STAGES_PERFORMANCE } from "@/lib/data/dashboard-data"
+import { PIPELINE_STAGES, PIPELINE_STAGES_PERFORMANCE, formatGLA } from "@/lib/data/dashboard-data"
 import { useMemo } from "react"
 import { PipelineStage } from "@/lib/data/dashboard-data"
 
@@ -12,6 +12,7 @@ interface StageWithMetrics extends PipelineStage {
 }
 
 const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string, stagesSource: PipelineStage[], showDropped: boolean }) => {
+  console.log('DealDurationBase stagesSource:', stagesSource);
   const stages = useMemo(() => {
     const maxDeals = Math.max(...stagesSource.map(stage => stage.totalDeals))
     let currentX = 150 // Start position
@@ -28,7 +29,7 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
         currentDropOffset += (dealDrop / maxDeals) * 40 // Scale drop by deal reduction
       }
       
-      currentX += 180 // Space between stages
+      currentX += 190 // Space between stages (set to 190)
       
       return {
         ...stage,
@@ -41,23 +42,95 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
 
   const totalDays = stages.reduce((acc: number, stage: StageWithMetrics) => acc + stage.duration, 0)
 
+  // Calculate section totals
+  const section1Stages = stages.filter(stage => 
+    ['Planned', 'Discussion initiated', 'Location agreed', 'Terms Agreed', 'Proposal issued', 'Proposal signed'].includes(stage.name)
+  )
+  const section2Stages = stages.filter(stage => stage.name === 'AMC initiated')
+  const section3Stages = stages.filter(stage => 
+    ['AMC approved', 'Contract issued', 'Contract signed', 'Ejar issued', 'Ejar signed'].includes(stage.name)
+  )
+
+  const section1TotalDeals = section1Stages.reduce((acc, stage) => acc + stage.totalDeals, 0)
+  const section1TotalGLA = section1Stages.reduce((acc, stage) => acc + stage.total, 0)
+  const section2TotalDeals = section2Stages.reduce((acc, stage) => acc + stage.totalDeals, 0)
+  const section2TotalGLA = section2Stages.reduce((acc, stage) => acc + stage.total, 0)
+  const section3TotalDeals = section3Stages.reduce((acc, stage) => acc + stage.totalDeals, 0)
+  const section3TotalGLA = section3Stages.reduce((acc, stage) => acc + stage.total, 0)
+
+  const section1TotalLeases = section1Stages.reduce((acc, stage) => acc + (typeof stage.totalLeases === 'number' ? stage.totalLeases : stage.totalDeals + 3), 0)
+  const section2TotalLeases = section2Stages.reduce((acc, stage) => acc + (typeof stage.totalLeases === 'number' ? stage.totalLeases : stage.totalDeals + 3), 0)
+  const section3TotalLeases = section3Stages.reduce((acc, stage) => acc + (typeof stage.totalLeases === 'number' ? stage.totalLeases : stage.totalDeals + 3), 0)
+
+  // Calculate total days for each section
+  const section1TotalDays = section1Stages.reduce((acc, stage) => acc + stage.duration, 0);
+  const section2TotalDays = section2Stages.reduce((acc, stage) => acc + stage.duration, 0);
+  const section3TotalDays = section3Stages.reduce((acc, stage) => acc + stage.duration, 0);
+
   const svgWidth = stages.length * 180 + 150;
   const stageChartSvg = (
     <svg
       width={svgWidth}
-      height={300}
-      viewBox={`0 0 ${svgWidth} 300`}
+      height={500}
+      viewBox={`0 0 ${svgWidth} 500`}
       className="overflow-visible"
     >
+      {/* Section Headers */}
+      {/* Section 1: Planned to Proposal signed */}
+      <text
+        x={((stages[2]?.x || 0) + (stages[3]?.x || 0)) / 2}
+        y={15}
+        className="text-base fill-[#4B2D84] font-semibold"
+        textAnchor="middle"
+      >
+        Leasing Activity
+      </text>
+      <text
+        x={((stages[2]?.x || 0) + (stages[3]?.x || 0)) / 2}
+        y={30}
+        className="text-sm fill-[#4B2D84]/70"
+        textAnchor="middle"
+      >
+        <tspan className="font-bold">{section1TotalDeals}</tspan> Deals • <tspan className="font-bold">{section1TotalLeases}</tspan> Leases • <tspan className="font-bold">{formatGLA(section1TotalGLA)}</tspan> Sqm • <tspan className="font-bold">{section1TotalDays}</tspan> Days
+      </text>
+
+      {/* Section 2: AMC initiated */}
+      <text
+        x={stages[6]?.x || 0}
+        y={15}
+        className="text-base fill-[#4B2D84] font-semibold"
+        textAnchor="middle"
+      >
+        AMC Activity
+      </text>
+
+      {/* Section 3: AMC approved to Ejar signed */}
+      <text
+        x={stages[9]?.x || 0}
+        y={15}
+        className="text-base fill-[#4B2D84] font-semibold"
+        textAnchor="middle"
+      >
+        Lease Admin Activity
+      </text>
+      <text
+        x={stages[9]?.x || 0}
+        y={30}
+        className="text-sm fill-[#4B2D84]/70"
+        textAnchor="middle"
+      >
+        <tspan className="font-bold">{section3TotalDeals}</tspan> Deals • <tspan className="font-bold">{section3TotalLeases}</tspan> Leases • <tspan className="font-bold">{formatGLA(section3TotalGLA)}</tspan> Sqm • <tspan className="font-bold">{section3TotalDays}</tspan> Days
+      </text>
+
               {/* Stage blocks and connections */}
               {stages.map((stage: StageWithMetrics, index: number) => (
                 <g key={stage.name} className="transition-all duration-500">
                   {/* Stage block */}
                   <rect
-                    x={stage.x - 60}
+                    x={stage.x - 75}
                     y={stage.y + stage.dropOffset}
-                    width={120}
-                    height={60}
+                    width={150}
+                    height={90}
                     rx={4}
                     className="fill-[#4B2D84]/10 stroke-[#4B2D84] stroke-1"
                   />
@@ -65,12 +138,23 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
                   {/* Stage name */}
                   <text
                     x={stage.x}
-                    y={stage.y + stage.dropOffset + 25}
-                    className="text-sm fill-[#4B2D84] font-medium"
+                    y={stage.y + stage.dropOffset + 20}
+                    className="text-base fill-[#4B2D84] font-semibold"
                     textAnchor="middle"
                   >
                     {stage.name}
                   </text>
+
+                  {/* Thin line under stage name */}
+                  <line
+                    x1={stage.x - 75}
+                    x2={stage.x + 75}
+                    y1={stage.y + stage.dropOffset + 27}
+                    y2={stage.y + stage.dropOffset + 27}
+                    stroke="#4B2D84"
+                    strokeWidth={1}
+                    opacity={0.6}
+                  />
 
                   {/* Deal count */}
                   <text
@@ -79,19 +163,39 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
                     className="text-sm fill-[#4B2D84]"
                     textAnchor="middle"
                   >
-                    {stage.totalDeals} deals
+                    <tspan className="font-bold">{stage.totalDeals}</tspan> Deals
+                  </text>
+
+                  {/* Lease count */}
+                  <text
+                    x={stage.x}
+                    y={stage.y + stage.dropOffset + 60}
+                    className="text-sm fill-[#4B2D84]"
+                    textAnchor="middle"
+                  >
+                    <tspan className="font-bold">{typeof stage.totalLeases === 'number' ? stage.totalLeases : stage.totalDeals + 3}</tspan> Leases
+                  </text>
+
+                  {/* Total GLA */}
+                  <text
+                    x={stage.x}
+                    y={stage.y + stage.dropOffset + 75}
+                    className="text-sm fill-[#4B2D84]"
+                    textAnchor="middle"
+                  >
+                    <tspan className="font-bold">{formatGLA(stage.total)}</tspan> Sqm
                   </text>
 
                   {/* Duration bar */}
-                  <g transform={`translate(${stage.x - 60}, ${stage.y + stage.dropOffset + 70})`}>
+                  <g transform={`translate(${stage.x - 75}, ${stage.y + stage.dropOffset + 85})`}>
                     <rect
-                      width={120}
+                      width={150}
                       height={24}
                       rx={2}
                       className="fill-[#4B2D84]"
                     />
                     <text
-                      x={60}
+                      x={75}
                       y={16}
                       className="text-sm fill-white"
                       textAnchor="middle"
@@ -105,45 +209,30 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
                     <>
                       {/* Diagonal line */}
                       <path
-                        d={`M ${stage.x + 60} ${stage.y + stage.dropOffset + 30}
-                           L ${stages[index + 1].x - 60} ${stages[index + 1].y + stages[index + 1].dropOffset + 30}`}
+                        d={`M ${stage.x + 75} ${stage.y + stage.dropOffset + 30}
+                           L ${stages[index + 1].x - 75} ${stages[index + 1].y + stages[index + 1].dropOffset + 30}`}
                         className="stroke-[#4B2D84] stroke-2"
                         strokeDasharray="4 4"
                       />
                       {/* Arrow */}
                       <path
-                        d={`M ${stages[index + 1].x - 70} ${stages[index + 1].y + stages[index + 1].dropOffset + 25} 
+                        d={`M ${stages[index + 1].x - 85} ${stages[index + 1].y + stages[index + 1].dropOffset + 25} 
                            l 10 5 l -10 5`}
                         className="fill-[#4B2D84]"
                       />
-                      {showDropped && (
-                      <g transform={`translate(${(stage.x + stages[index + 1].x) / 2}, ${(stage.y + stage.dropOffset + stages[index + 1].y + stages[index + 1].dropOffset) / 2})`}>
-                        {/* Drop text */}
-                        <text
-                          x="0"
-                          y="-30"
-                          className="text-xs fill-[#4B2D84]"
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          {stage.totalDeals - stages[index + 1].totalDeals} dropped
-                        </text>
-                        {/* Vertical drop line */}
-                        <line
-                          x1="0"
-                          y1="-20"
-                          x2="0"
-                          y2="20"
-                          className="stroke-[#4B2D84] stroke-[1.5]"
-                        />
-                        {/* Downward arrow */}
-                        <path
-                          d="M -8 12 L 0 20 L 8 12"
-                          className="fill-none stroke-[#4B2D84] stroke-[1.5]"
-                        />
-                      </g>
-                      )}
                     </>
+                  )}
+
+                  {/* Vertical dotted lines for specific stage transitions */}
+                  {(stage.name === 'Proposal signed' || stage.name === 'AMC initiated') && (
+                    <line
+                      x1={stage.x + 90}
+                      y1={stage.y + stage.dropOffset - 80}
+                      x2={stage.x + 90}
+                      y2={stage.y + stage.dropOffset + 160}
+                      className="stroke-[#4B2D84] stroke-1"
+                      strokeDasharray="3 3"
+                    />
                   )}
                 </g>
               ))}
@@ -167,7 +256,7 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
           
           {/* Legend */}
           <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center justify-center text-xs text-[#4B2D84]/70">
+            <div className="flex items-center justify-center text-sm text-[#4B2D84]/70">
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-[#4B2D84] rounded"></div>
                 <span>Duration bars show average time spent in each stage</span>

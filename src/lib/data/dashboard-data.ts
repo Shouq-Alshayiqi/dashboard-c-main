@@ -6,6 +6,7 @@ export interface PipelineStage {
   probability: number;
   duration: number;
   totalDeals: number;
+  totalLeases: number;
 }
 
 export interface Dealer {
@@ -49,18 +50,18 @@ export interface MonthlyDataPoint {
 
 // Pipeline stages configuration
 export const PIPELINE_STAGES: PipelineStage[] = [
-  { name: 'Planned', total: 14000, weighted: 700, probability: 0.05, duration: 9, totalDeals: 23 },
-  { name: 'Discussion initiated', total: 13000, weighted: 650, probability: 0.05, duration: 7, totalDeals: 21 },
-  { name: 'Location agreed', total: 12000, weighted: 2400, probability: 0.20, duration: 11, totalDeals: 19 },
-  { name: 'Terms Agreed', total: 11000, weighted: 2000, probability: 0.00, duration: 7, totalDeals: 17 },
-  { name: 'Proposal issued', total: 9000, weighted: 2250, probability: 0.25, duration: 9, totalDeals: 16 },
-  { name: 'Proposal signed', total: 8000, weighted: 4000, probability: 0.50, duration: 13, totalDeals: 15 },
-  { name: 'AMC initiated', total: 7000, weighted: 3500, probability: 0.50, duration: 9, totalDeals: 13 },
-  { name: 'AMC approved', total: 6000, weighted: 4800, probability: 0.80, duration: 13, totalDeals: 11 },
-  { name: 'Contract issued', total: 5000, weighted: 4000, probability: 0.80, duration: 7, totalDeals: 9 },
-  { name: 'Contract signed', total: 3000, weighted: 3000, probability: 1.00, duration: 9, totalDeals: 7 },
-  { name: 'Ejar issued', total: 2000, weighted: 2000, probability: 1.00, duration: 5, totalDeals: 5 },
-  { name: 'Ejar signed', total: 1500, weighted: 1500, probability: 1.00, duration: 5, totalDeals: 4 },
+  { name: 'Planned', total: 14000, weighted: 700, probability: 0.05, duration: 9, totalDeals: 23, totalLeases: 28 },
+  { name: 'Discussion initiated', total: 13000, weighted: 650, probability: 0.05, duration: 7, totalDeals: 21, totalLeases: 25 },
+  { name: 'Location agreed', total: 12000, weighted: 2400, probability: 0.20, duration: 11, totalDeals: 19, totalLeases: 23 },
+  { name: 'Terms Agreed', total: 11000, weighted: 2000, probability: 0.00, duration: 7, totalDeals: 17, totalLeases: 20 },
+  { name: 'Proposal issued', total: 9000, weighted: 2250, probability: 0.25, duration: 9, totalDeals: 16, totalLeases: 19 },
+  { name: 'Proposal signed', total: 8000, weighted: 4000, probability: 0.50, duration: 13, totalDeals: 15, totalLeases: 18 },
+  { name: 'AMC initiated', total: 7000, weighted: 3500, probability: 0.50, duration: 9, totalDeals: 13, totalLeases: 16 },
+  { name: 'AMC approved', total: 6000, weighted: 4800, probability: 0.80, duration: 13, totalDeals: 11, totalLeases: 14 },
+  { name: 'Contract issued', total: 5000, weighted: 4000, probability: 0.80, duration: 7, totalDeals: 9, totalLeases: 12 },
+  { name: 'Contract signed', total: 3000, weighted: 3000, probability: 1.00, duration: 9, totalDeals: 7, totalLeases: 10 },
+  { name: 'Ejar issued', total: 2000, weighted: 2000, probability: 1.00, duration: 5, totalDeals: 5, totalLeases: 7 },
+  { name: 'Ejar signed', total: 1500, weighted: 1500, probability: 1.00, duration: 5, totalDeals: 4, totalLeases: 6 },
 ];
 
 export const PIPELINE_STAGE_PROBABILITIES = [
@@ -335,18 +336,11 @@ const targetCurve = months.map((_m: string, i: number) => {
 const actualCurve: (number|null)[] = [];
 for (let i = 0; i < months.length; i++) {
   if (i === 0) {
-    actualCurve.push(0.91 * TOTAL_GLA_TARGET);
+    actualCurve.push(0.90 * TOTAL_GLA_TARGET); // Jan: 90% (90k sqm)
   } else if (i <= 6) { // Jan-Jul
-    const prev = actualCurve[i - 1] as number;
-    const signed = signedDealsArr[i];
-    const term = terminationsArr[i];
-    if (signed > term) {
-      actualCurve.push(prev + 1000); // go up by 1k sqm
-    } else if (signed < term) {
-      actualCurve.push(prev - 1000); // go down by 1k sqm
-    } else {
-      actualCurve.push(prev); // no change
-    }
+    // Make actual close to target with small random deviation
+    const deviation = (Math.random() - 0.5) * 0.02 * TOTAL_GLA_TARGET; // ±1%
+    actualCurve.push(targetCurve[i] * TOTAL_GLA_TARGET + deviation);
   } else {
     actualCurve.push(null);
   }
@@ -362,7 +356,7 @@ const forecastCurve = months.map((_m: string, i: number) => {
 const initialMonthlyData: Omit<MonthlyDataPoint, 'forecast'>[] = months.map((month: string, i: number) => ({
   month,
   target: Math.round(targetCurve[i] * TOTAL_GLA_TARGET),
-  actual: actualCurve[i] !== null ? Math.round(actualCurve[i] as number) : null,
+  actual: i === 0 ? Math.round(0.90 * TOTAL_GLA_TARGET) : (actualCurve[i] !== null ? Math.round(actualCurve[i] as number) : null),
   pipelineData: {},
   glaStarted: 0,
   glaClosed: 0,
@@ -374,10 +368,51 @@ const initialMonthlyData: Omit<MonthlyDataPoint, 'forecast'>[] = months.map((mon
 }));
 // Forecast values: use forecastCurve
 const forecastValuesWithAugStart = forecastCurve.map((val, idx) => val !== null ? Math.round(val * TOTAL_GLA_TARGET) : null);
-export const MONTHLY_DATA: MonthlyDataPoint[] = initialMonthlyData.map((data, index) => ({
+export const MONTHLY_DATA: MonthlyDataPoint[] = initialMonthlyData.map((data, index) => {
+  // Inverted bell shape for target:
+  // Jan = 91% (91k), June = 84% (84k, lowest), Dec = 92% (92k)
+  let target = data.target;
+  let actual = data.actual;
+  if (index === 0) {
+    target = Math.round(0.91 * TOTAL_GLA_TARGET); // Jan
+    actual = Math.round(0.90 * TOTAL_GLA_TARGET); // Force Jan actual to 90k
+  } else if (index === 5) {
+    target = Math.round(0.84 * TOTAL_GLA_TARGET); // June (lowest)
+  } else if (index === 11) {
+    target = TOTAL_GLA_TARGET; // Dec (92k)
+  } else if (index < 5) {
+    // Jan to June: interpolate from 91% to 84%
+    const t = index / 5;
+    target = Math.round((0.91 * (1 - t) + 0.84 * t) * TOTAL_GLA_TARGET);
+    if (target < Math.round(0.84 * TOTAL_GLA_TARGET)) target = Math.round(0.84 * TOTAL_GLA_TARGET);
+  } else if (index > 5 && index < 11) {
+    // June to Dec: interpolate from 84% to 92%
+    const t = (index - 5) / 6;
+    target = Math.round((0.84 * (1 - t) + 0.92 * t) * TOTAL_GLA_TARGET);
+    if (target < Math.round(0.84 * TOTAL_GLA_TARGET)) target = Math.round(0.84 * TOTAL_GLA_TARGET);
+  }
+  return {
   ...data,
-  forecast: forecastValuesWithAugStart[index],
-}));
+    target,
+    actual,
+    forecast: index === 11 ? TOTAL_GLA_TARGET : forecastValuesWithAugStart[index],
+  };
+});
+// Force January actual to 90,000 after all mapping
+if (MONTHLY_DATA && MONTHLY_DATA[0]) {
+  MONTHLY_DATA[0].actual = 90000; MONTHLY_DATA[0].target = 90000; // Jan 90%
+  MONTHLY_DATA[1].actual = 89000; MONTHLY_DATA[1].target = 89000; // Feb 89%
+  MONTHLY_DATA[2].actual = 87000; MONTHLY_DATA[2].target = 87000; // Mar 87%
+  MONTHLY_DATA[3].actual = 86000; MONTHLY_DATA[3].target = 86000; // Apr 86%
+  MONTHLY_DATA[4].actual = 85000; MONTHLY_DATA[4].target = 85000; // May 85%
+  MONTHLY_DATA[5].actual = 84000; MONTHLY_DATA[5].target = 84000; // Jun 84%
+}
+
+// Set explicit values for Feb-May
+MONTHLY_DATA[1].actual = 81880; MONTHLY_DATA[1].target = 81880; // Feb 89%
+MONTHLY_DATA[2].actual = 80040; MONTHLY_DATA[2].target = 80040; // Mar 87%
+MONTHLY_DATA[3].actual = 79040; MONTHLY_DATA[3].target = 79040; // Apr 86%
+MONTHLY_DATA[4].actual = 78200; MONTHLY_DATA[4].target = 78200; // May 85%
 
 export const LEASE_EXPIRY_DATA = [
   { name: 'Within 1 Year', value: 15000, color: '#4B2D84' },
@@ -439,16 +474,31 @@ export interface MonthlyDataPoint {
 
 // For Performance Metrics page (different numbers)
 export const PIPELINE_STAGES_PERFORMANCE: PipelineStage[] = [
-  { name: 'Planned', total: 14000, weighted: 700, probability: 0.05, duration: 8, totalDeals: 22 },
-  { name: 'Discussion initiated', total: 13000, weighted: 650, probability: 0.05, duration: 8, totalDeals: 20 },
-  { name: 'Location agreed', total: 12000, weighted: 2400, probability: 0.20, duration: 10, totalDeals: 18 },
-  { name: 'Terms Agreed', total: 11000, weighted: 2000, probability: 0.00, duration: 6, totalDeals: 16 },
-  { name: 'Proposal issued', total: 9000, weighted: 2250, probability: 0.25, duration: 10, totalDeals: 15 },
-  { name: 'Proposal signed', total: 8000, weighted: 4000, probability: 0.50, duration: 12, totalDeals: 14 },
-  { name: 'AMC initiated', total: 7000, weighted: 3500, probability: 0.50, duration: 10, totalDeals: 12 },
-  { name: 'AMC approved', total: 6000, weighted: 4800, probability: 0.80, duration: 12, totalDeals: 10 },
-  { name: 'Contract issued', total: 5000, weighted: 4000, probability: 0.80, duration: 8, totalDeals: 8 },
-  { name: 'Contract signed', total: 3000, weighted: 3000, probability: 1.00, duration: 8, totalDeals: 6 },
-  { name: 'Ejar issued', total: 2000, weighted: 2000, probability: 1.00, duration: 4, totalDeals: 4 },
-  { name: 'Ejar signed', total: 1500, weighted: 1500, probability: 1.00, duration: 4, totalDeals: 3 },
+  { name: 'Planned', total: 14000, weighted: 700, probability: 0.05, duration: 8, totalDeals: 22, totalLeases: 27 },
+  { name: 'Discussion initiated', total: 13000, weighted: 650, probability: 0.05, duration: 8, totalDeals: 20, totalLeases: 24 },
+  { name: 'Location agreed', total: 12000, weighted: 2400, probability: 0.20, duration: 10, totalDeals: 18, totalLeases: 22 },
+  { name: 'Terms Agreed', total: 11000, weighted: 2000, probability: 0.00, duration: 6, totalDeals: 16, totalLeases: 19 },
+  { name: 'Proposal issued', total: 9000, weighted: 2250, probability: 0.25, duration: 10, totalDeals: 15, totalLeases: 18 },
+  { name: 'Proposal signed', total: 8000, weighted: 4000, probability: 0.50, duration: 12, totalDeals: 14, totalLeases: 17 },
+  { name: 'AMC initiated', total: 7000, weighted: 3500, probability: 0.50, duration: 10, totalDeals: 12, totalLeases: 15 },
+  { name: 'AMC approved', total: 6000, weighted: 4800, probability: 0.80, duration: 12, totalDeals: 10, totalLeases: 13 },
+  { name: 'Contract issued', total: 5000, weighted: 4000, probability: 0.80, duration: 8, totalDeals: 8, totalLeases: 11 },
+  { name: 'Contract signed', total: 3000, weighted: 3000, probability: 1.00, duration: 8, totalDeals: 6, totalLeases: 9 },
+  { name: 'Ejar issued', total: 2000, weighted: 2000, probability: 1.00, duration: 4, totalDeals: 4, totalLeases: 6 },
+  { name: 'Ejar signed', total: 1500, weighted: 1500, probability: 1.00, duration: 4, totalDeals: 3, totalLeases: 5 },
 ]; 
+
+// Overwrite MONTHLY_DATA for GLA Progress Chart to match 1:1 percent to sqm (e.g., 84% = 84,000 sqm)
+const targetPercents = [90, 88, 87, 85, 84, 83, 85, 87, 88, 89, 90, 92];
+const actualPercents = [90, 89, 88, 86, 85, 84, null, null, null, null, null, null];
+const forecastPercents = [null, null, null, null, null, null, 85, 87, 88, 89, 90, 92];
+
+if (MONTHLY_DATA) {
+  for (let i = 0; i < 12; i++) {
+    if (MONTHLY_DATA[i]) {
+      MONTHLY_DATA[i].target = targetPercents[i] * 1000;
+      MONTHLY_DATA[i].actual = (typeof actualPercents[i] === 'number') ? actualPercents[i] * 1000 : null;
+      MONTHLY_DATA[i].forecast = (typeof forecastPercents[i] === 'number') ? forecastPercents[i] * 1000 : null;
+    }
+  }
+} 

@@ -1,6 +1,8 @@
 'use client'
 
 import { pipelineStages, leaseExpiryData, monthlyConversionData, topBrandsInPipeline } from "@/lib/mock-data"
+import React from "react";
+import PipelineTeamTable from "./pipeline-team-table";
 
 const formatValue = (value: number) => {
   if (value >= 1000) {
@@ -16,6 +18,14 @@ interface MonthlyConversionItem {
   "Deals Dropped": number;
   "Net GLA": number;
 }
+
+const pipelineTeams = [
+  { name: "Eastern", total: 32000, weighted: 18000, avgProb: 0.56 },
+  { name: "Western", total: 27000, weighted: 15000, avgProb: 0.51 },
+  { name: "Center", total: 35000, weighted: 21000, avgProb: 0.60 },
+  { name: "Entertainment", total: 12000, weighted: 7000, avgProb: 0.48 },
+  { name: "Luxury", total: 9000, weighted: 6000, avgProb: 0.67 },
+];
 
 export const PipelineAnalysisKPIs = ({ selectedMonth = 'All', selectedTeam = 'All' }) => {
   let totalPipelineValue = pipelineStages.filter(stage => stage.name !== 'Closed').reduce((acc, stage) => acc + stage.value, 0)
@@ -46,7 +56,7 @@ export const PipelineAnalysisKPIs = ({ selectedMonth = 'All', selectedTeam = 'Al
       color: "#9B6A2D"
     },
     {
-      title: "Avg Success Probability",
+      title: "Avg Conversion Probability",
       value: `${Math.round(totalWeightedValue / totalPipelineValue * 100)}%`,
       subtext: "Based on weighted value",
       color: "#2D6A1F"
@@ -54,12 +64,13 @@ export const PipelineAnalysisKPIs = ({ selectedMonth = 'All', selectedTeam = 'Al
     {
       title: "Top Groups Potential",
       value: `${formatValue(topBrandsPotential)} sqm`,
-      subtext: "Weighted GLA from top 5 brands",
+      subtext: "Weighted GLA from top 10 Groups",
       color: "#84B22D"
     }
   ]
 
   return (
+    <>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
       {kpis.map((kpi, index) => (
         <div key={index} className="relative">
@@ -77,5 +88,6 @@ export const PipelineAnalysisKPIs = ({ selectedMonth = 'All', selectedTeam = 'Al
         </div>
       ))}
     </div>
+    </>
   )
 } 

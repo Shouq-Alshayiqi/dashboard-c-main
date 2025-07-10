@@ -22,6 +22,9 @@ import DealerDealDurations from '@/components/dashboard/dealer-deal-durations'
 import { DealerPipelineTable } from "@/components/dashboard/dealer-pipeline-table"
 import { TopGroupsSigned } from '@/components/dashboard/top-brands'
 import { MONTHLY_DATA } from '@/lib/data/dashboard-data'
+import { Header } from "@/components/layout/header"
+import DealsDetails from "./lease-manager-details/page"
+import PipelineTeamTable from "@/components/dashboard/pipeline-team-table"
 
 // Add custom animation class
 const shineAnimation = `
@@ -125,26 +128,32 @@ const slides = [
         <div className="h-[120px] shrink-0">
           <PipelineAnalysisKPIs selectedMonth={selectedMonth} selectedTeam={selectedTeam} />
         </div>
-        <div className="flex-1 mt-6 min-h-0 flex flex-col gap-6">
+        <div className="flex-1 min-h-0 overflow-y-auto mt-6 flex flex-col gap-6 pr-2" tabIndex={0} aria-label="Pipeline Analysis Content Scroll Area">
           {/* Deal Stage Analysis - Large Middle Section */}
-          <div className="h-[350px] min-h-0 rounded-lg bg-white p-2 flex items-stretch">
+          <div className="h-[355px] min-h-[355px] rounded-lg bg-white p-2 flex items-stretch">
             <div className="w-full flex-1 flex items-stretch">
               <DealDuration selectedMonth={selectedMonth} selectedTeam={selectedTeam} />
             </div>
           </div>
-          {/* Bottom Two Charts */}
+          {/* Weighted Pipeline - Full Width (adjusted height for full chart visibility) */}
+          <div className="h-[350px] min-h-[350px] rounded-lg bg-white p-2 flex items-stretch">
+            <div className="w-full flex-1 flex items-stretch">
+              <WeightedPipeline selectedMonth={selectedMonth} selectedTeam={selectedTeam} />
+            </div>
+          </div>
+          {/* Bottom Row: Top Brands (left), Pipeline by Team Table (right) */}
           <div className="h-[500px] grid grid-cols-2 gap-6">
             <div className="flex flex-col h-full min-h-0">
-              <div className="flex-1 min-h-0 rounded-lg bg-white p-2 flex items-stretch">
-                <div className="w-full flex-1 flex items-stretch">
-                  <WeightedPipeline selectedMonth={selectedMonth} selectedTeam={selectedTeam} />
+              <div className="flex-1 min-h-0 rounded-lg bg-white p-8 flex items-stretch h-[250px] min-h-[250px]">
+                <div className="w-full flex-1 flex items-stretch h-full">
+                  <TopBrands selectedMonth={selectedMonth} selectedTeam={selectedTeam} />
                 </div>
               </div>
             </div>
             <div className="flex flex-col h-full min-h-0">
-              <div className="flex-1 min-h-0 rounded-lg bg-white p-2 flex items-stretch">
+              <div className="flex-1 min-h-0 rounded-lg bg-white p-8 flex items-stretch">
                 <div className="w-full flex-1 flex items-stretch">
-                  <TopBrands selectedMonth={selectedMonth} selectedTeam={selectedTeam} />
+                  <PipelineTeamTable />
                 </div>
               </div>
             </div>
@@ -155,7 +164,7 @@ const slides = [
   },
   {
     id: 'dealers',
-    title: 'Dealer Performance',
+    title: 'Lease Manager Performance',
     component: (selectedMonth: string, selectedTeam: string) => (
       <div className="h-[calc(100vh-9rem)] overflow-hidden">
         <div className="h-[120px]">
@@ -173,6 +182,11 @@ const slides = [
         </div>
       </div>
     )
+  },
+  {
+    id: 'deals-details',
+    title: 'Deals Details',
+    component: () => <DealsDetails />
   }
 ]
 
@@ -180,7 +194,7 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const months = MONTHLY_DATA.map((d) => d.month)
   const [selectedMonth, setSelectedMonth] = useState('All')
-  const teamOptions = ['All', 'Central', 'Western', 'Eastern', 'Entertainment']
+  const teamOptions = ['All', 'Central', 'Western', 'Eastern', 'Entertainment', 'Luxury']
   const [selectedTeam, setSelectedTeam] = useState('All')
   const hasNextSlide = currentSlide < slides.length - 1
   const hasPrevSlide = currentSlide > 0

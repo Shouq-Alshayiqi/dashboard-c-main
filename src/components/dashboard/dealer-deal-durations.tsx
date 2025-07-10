@@ -42,7 +42,10 @@ export const DealerDealDurations = ({ selectedMonth = 'All', selectedTeam = 'All
   return (
     <Card className="h-full overflow-hidden bg-white">
       <div className="px-6 pt-4 pb-6 h-full">
-        <Title className="text-[#4B2D84] font-medium text-sm mb-6">Deal Duration Trends</Title>
+        <div className="flex items-center justify-between mb-5">
+          <Title className="text-[#4B2D84] font-medium text-sm">Deal Duration Trends</Title>
+          <div className="text-xs text-[#4B2D84]/70">Average is calculated over the last 12 months.</div>
+        </div>
         <div className="h-[calc(100%-4rem)]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={filteredData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>

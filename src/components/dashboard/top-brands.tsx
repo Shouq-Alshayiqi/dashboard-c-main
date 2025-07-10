@@ -113,7 +113,7 @@ export const TopBrands = ({ selectedMonth = 'All', selectedTeam = 'All' }) => {
     <Card className="h-full overflow-hidden bg-white">
       <div className="px-6 pt-4 pb-6 h-full flex flex-col">
         <Title className="text-[#4B2D84] font-medium text-sm mb-4">Top Groups</Title>
-        <div className="min-h-[500px]">
+        <div className="min-h-[390px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
@@ -183,20 +183,38 @@ export const TopGroupsSigned = ({ selectedMonth = 'All', selectedTeam = 'All' })
                 {entry.dataKey}: {formatValue(entry.value)} sqm
               </span>
             </div>
-            {entry.payload.daysToSign && (
-              <span className="ml-4 text-xs text-[#4B2D84]/70">Days to sign: {entry.payload.daysToSign} days</span>
-            )}
           </div>
         ))}
       </div>
     )
   }
 
+  // Custom label for days to sign, positioned outside the bar
+  const DaysLabel = (props: any) => {
+    const { x, y, width, value, height } = props;
+    if (!value) return null;
+    return (
+      <text
+        x={x + width + 12}
+        y={y + height / 2}
+        textAnchor="start"
+        alignmentBaseline="central"
+        className="select-none"
+        aria-label={`Days to sign: ${value} days`}
+        fill="#4B2D84"
+        fontSize="14px"
+        fontWeight="600"
+      >
+        {`${value}d`}
+      </text>
+    );
+  };
+
   return (
     <Card className="h-full overflow-hidden bg-white">
       <div className="px-6 pt-4 pb-6 h-full flex flex-col">
         <Title className="text-[#4B2D84] font-medium text-sm mb-4">Top Groups - Signed</Title>
-        <div className="min-h-[500px]">
+        <div className="min-h-[455px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
@@ -231,11 +249,15 @@ export const TopGroupsSigned = ({ selectedMonth = 'All', selectedTeam = 'All' })
                 maxBarSize={28}
               >
                 <LabelList
-                  dataKey="daysToSign"
+                  dataKey="Signed GLA"
                   position="insideRight"
-                  formatter={(value: number) => value ? `${value}d` : ''}
+                  formatter={(value: number) => `${formatValue(value)} sqm`}
                   style={{ fill: "#fff", fontSize: "14px", fontWeight: 600 }}
                   offset={8}
+                />
+                <LabelList
+                  dataKey="daysToSign"
+                  content={DaysLabel}
                 />
               </Bar>
             </BarChart>

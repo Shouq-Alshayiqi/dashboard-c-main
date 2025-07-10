@@ -23,25 +23,25 @@ export const DealerKPIs = ({ selectedMonth = 'All', selectedTeam = 'All' }) => {
     {
       title: "Total GLA Secured",
       value: `${formatValue(totalGLA)} sqm`,
-      subtext: "From all active dealers",
+      subtext: "From all active lease managers",
       color: "#4B2D84"
     },
     {
       title: "Average Deal Size",
       value: `${avgDealSize.toFixed(1)} sqm`,
-      subtext: "From all active dealers",
+      subtext: "From all active lease managers",
       color: "#9B6A2D"
     },
     {
       title: "Avg Conversion Rate",
       value: `${Math.round(avgConversionRate * 100)}%`,
-      subtext: "From all active dealers",
+      subtext: "From all active lease managers",
       color: "#2D6A1F"
     },
     {
       title: "Avg Deal Duration",
       value: `${Math.round(avgDealDuration)} days`,
-      subtext: "From all active dealers",
+      subtext: "From all active lease managers",
       color: "#E67E93"
     }
   ]

@@ -12,7 +12,7 @@ import {
 } from "recharts"
 import { MONTHLY_DATA, formatGLA, TOTAL_GLA_TARGET, PROJECTED_GLA } from "@/lib/data/dashboard-data"
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const terminations = payload[0]?.payload?.terminations;
     const signedDeals = payload[0]?.payload?.signedDeals;
@@ -23,7 +23,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           <div key={i} className="flex items-center gap-2 text-sm" style={{ color: p.color }}>
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
             <span>{p.name}: {formatGLA(p.value)} sqm</span>
-          </div>
+            </div>
         ))}
         <div className="mt-2 text-xs text-gray-700">Terminations: <span className="font-semibold">{terminations}</span></div>
         <div className="text-xs text-gray-700">Signed Deals: <span className="font-semibold">{signedDeals}</span></div>
@@ -92,7 +92,7 @@ export const ProgressChart = ({ selectedMonth = 'All', selectedTeam = 'All' }) =
                 width={60}
                 tickFormatter={formatGLA}
                 label={{ value: 'GLA (sqm)', angle: -90, position: 'insideLeft', fill: '#6B7280', fontSize: 12 }}
-                domain={[0, TOTAL_GLA_TARGET]}
+                domain={[75000, 100000]}
               />
               <YAxis
                 yAxisId="right"
@@ -176,9 +176,8 @@ export const ProgressChart = ({ selectedMonth = 'All', selectedTeam = 'All' }) =
                 dot={({ cx, cy, payload }) => {
                   if (!cx || !cy || !payload) return <g />;
                   if (payload.month === 'Dec') {
-                    const forecastPercent = payload.forecast && TOTAL_GLA_TARGET ? ((payload.forecast / TOTAL_GLA_TARGET) * 100).toFixed(1) : null;
                     return (
-                      <g tabIndex={0} aria-label={`Forecast GLA for December: ${formatGLA(payload.forecast)} sqm${forecastPercent ? ` (${forecastPercent}%)` : ''}`}>
+                      <g tabIndex={0} aria-label="Forecast GLA for December: 92% - 92k sqm">
                         <text
                           x={cx - 14}
                           y={cy + 35}
@@ -186,7 +185,7 @@ export const ProgressChart = ({ selectedMonth = 'All', selectedTeam = 'All' }) =
                           className="fill-[#84B22D] text-xs font-bold"
                           style={{ fontSize: '15px' }}
                         >
-                          {formatGLA(payload.forecast)} sqm{forecastPercent ? ` (${forecastPercent}%)` : ''}
+                          92% - 92k sqm
                         </text>
                         <circle cx={cx} cy={cy} r={5} fill="#84B22D" />
                       </g>

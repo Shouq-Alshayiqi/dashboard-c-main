@@ -25,6 +25,9 @@ import { MONTHLY_DATA } from '@/lib/data/dashboard-data'
 import { Header } from "@/components/layout/header"
 import DealsDetails from "./lease-manager-details/page"
 import PipelineTeamTable from "@/components/dashboard/pipeline-team-table"
+import RDDPage from './rdd/page';
+
+const mallOptions = ['Mall of Arabia', 'Red Sea Mall', 'Arabian Centres', 'Panorama Mall', 'Al Nakheel Mall'];
 
 // Add custom animation class
 const shineAnimation = `
@@ -187,6 +190,11 @@ const slides = [
     id: 'deals-details',
     title: 'Deals Details',
     component: () => <DealsDetails />
+  },
+  {
+    id: 'rdd',
+    title: 'RDD',
+    component: () => <RDDPage />
   }
 ]
 
@@ -196,6 +204,7 @@ export default function Home() {
   const [selectedMonth, setSelectedMonth] = useState('All')
   const teamOptions = ['All', 'Central', 'Western', 'Eastern', 'Entertainment', 'Luxury']
   const [selectedTeam, setSelectedTeam] = useState('All')
+  const [selectedMall, setSelectedMall] = useState('All')
   const hasNextSlide = currentSlide < slides.length - 1
   const hasPrevSlide = currentSlide > 0
   const nextSlide = hasNextSlide ? slides[currentSlide + 1] : null
@@ -284,6 +293,22 @@ export default function Home() {
                 ))}
               </select>
             </div>
+            {/* Mall Filter */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="mall-select" className="text-[#4B2D84] font-medium mr-2">Filter by Mall:</label>
+              <select
+                id="mall-select"
+                value={selectedMall}
+                onChange={e => setSelectedMall(e.target.value)}
+                className="px-4 py-2 rounded-lg border border-[#4B2D84]/30 text-[#4B2D84] bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#4B2D84]"
+                aria-label="Select mall to filter charts"
+              >
+                <option value="All">All Malls</option>
+                {mallOptions.map(mall => (
+                  <option key={mall} value={mall}>{mall}</option>
+                ))}
+              </select>
+            </div>
             {/* Team Filter */}
             <div className="flex items-center gap-2">
               <label htmlFor="team-select" className="text-[#4B2D84] font-medium mr-2">Filter by Team:</label>
@@ -300,7 +325,13 @@ export default function Home() {
               </select>
             </div>
           </div>
-          {slides[currentSlide].component(selectedMonth, selectedTeam)}
+          {(() => {
+  const slide = slides[currentSlide];
+  if (slide.id === 'overview' || slide.id === 'performance' || slide.id === 'pipeline' || slide.id === 'dealers') {
+    return slide.component(selectedMonth, selectedTeam);
+  }
+  return slide.component();
+})()}
         </main>
       </div>
     </>

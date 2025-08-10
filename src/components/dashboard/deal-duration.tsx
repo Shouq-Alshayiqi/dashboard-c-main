@@ -269,6 +269,8 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
   )
 }
 
+export { DealDurationBase };
+
 export const DealDuration = ({ selectedMonth = 'All', selectedTeam = 'All' }) => {
   // Simulate filtering for demo
   const multiplier = (selectedMonth !== 'All' || selectedTeam !== 'All') ? 0.2 : 1

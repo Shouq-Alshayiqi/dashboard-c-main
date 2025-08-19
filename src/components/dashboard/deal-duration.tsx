@@ -29,7 +29,7 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
         currentDropOffset += (dealDrop / maxDeals) * 40 // Scale drop by deal reduction
       }
       
-      currentX += 190 // Space between stages (set to 190)
+      currentX += 190 // Space between stages (restored to original)
       
       return {
         ...stage,
@@ -71,8 +71,8 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
   const stageChartSvg = (
     <svg
       width={svgWidth}
-      height={500}
-      viewBox={`0 0 ${svgWidth} 500`}
+      height={300}
+      viewBox={`0 0 ${svgWidth} 300`}
       className="overflow-visible"
     >
       {/* Section Headers */}
@@ -250,12 +250,12 @@ const DealDurationBase = ({ title, stagesSource, showDropped }: { title: string,
         </div>
 
         <div className="flex flex-col h-[calc(100%-3rem)]">
-          <div className="flex-1 relative overflow-x-auto overflow-y-hidden">
+          <div className="flex-none relative overflow-x-auto overflow-y-hidden">
             {stageChartSvg}
           </div>
           
           {/* Legend */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="border-t border-gray-200 -mt-2">
             <div className="flex items-center justify-center text-sm text-[#4B2D84]/70">
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-[#4B2D84] rounded"></div>

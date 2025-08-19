@@ -189,12 +189,12 @@ const slides = [
   {
     id: 'deals-details',
     title: 'Deals Details',
-    component: () => <DealsDetails />
+    component: (selectedMonth: string, selectedTeam: string) => <DealsDetails />
   },
   {
     id: 'rdd',
     title: 'RDD',
-    component: () => <RDDPage />
+    component: (selectedMonth: string, selectedTeam: string) => <RDDPage />
   }
 ]
 
@@ -327,10 +327,7 @@ export default function Home() {
           </div>
           {(() => {
   const slide = slides[currentSlide];
-  if (slide.id === 'overview' || slide.id === 'performance' || slide.id === 'pipeline' || slide.id === 'dealers') {
-    return slide.component(selectedMonth, selectedTeam);
-  }
-  return slide.component();
+  return slide.component(selectedMonth, selectedTeam);
 })()}
         </main>
       </div>

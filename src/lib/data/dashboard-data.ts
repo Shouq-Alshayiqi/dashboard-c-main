@@ -494,11 +494,10 @@ const actualPercents = [90, 89, 88, 86, 85, 84, null, null, null, null, null, nu
 const forecastPercents = [null, null, null, null, null, null, 85, 87, 88, 89, 90, 92];
 
 if (MONTHLY_DATA) {
-  for (let i = 0; i < 12; i++) {
-    if (MONTHLY_DATA[i]) {
-      MONTHLY_DATA[i].target = targetPercents[i] * 1000;
-      MONTHLY_DATA[i].actual = (typeof actualPercents[i] === 'number') ? actualPercents[i] * 1000 : null;
-      MONTHLY_DATA[i].forecast = (typeof forecastPercents[i] === 'number') ? forecastPercents[i] * 1000 : null;
-    }
-  }
+  const validMonthData = MONTHLY_DATA.filter((item): item is MonthlyDataPoint => item !== null);
+  validMonthData.forEach((monthData, i) => {
+    monthData.target = targetPercents[i] * 1000;
+    monthData.actual = (typeof actualPercents[i] === 'number') ? actualPercents[i] * 1000 : null;
+    monthData.forecast = (typeof forecastPercents[i] === 'number') ? forecastPercents[i] * 1000 : null;
+  });
 } 

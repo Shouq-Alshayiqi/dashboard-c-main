@@ -39,29 +39,31 @@ export const DealerPerformanceTablePipeline = ({ selectedMonth = 'All', selected
               <thead>
                 <tr className="border-b border-[#4B2D84]/20">
                   <th className="text-left py-3 px-4 text-sm font-medium text-[#4B2D84]">Lease Manager Name</th>
-                  <th className="text-right py-3 px-4 text-sm font-medium text-[#4B2D84]">Total GLA</th>
                   <th className="text-right py-3 px-4 text-sm font-medium text-[#4B2D84]">Deals Count</th>
                   <th className="text-right py-3 px-4 text-sm font-medium text-[#4B2D84]">Avg Deal Size</th>
                   <th className="text-right py-3 px-4 text-sm font-medium text-[#4B2D84]">Avg Duration</th>
+                  <th className="text-right py-3 px-4 text-sm font-medium text-[#4B2D84]">Total GLA</th>
+                  <th className="text-right py-3 px-4 text-sm font-medium text-[#4B2D84]">Target GLA</th>
                 </tr>
               </thead>
               <tbody>
-                {leaseManagersWithMetrics.map((leaseManager, index) => (
+                {leaseManagersWithMetrics.map((leaseManager, index) => {
+                  const totalGLA = leaseManager.totalGLA;
+                  const roundedTargetGLA = Math.ceil(totalGLA / 1000) * 1000;
+                  return (
                   <tr 
-                    key={leaseManager.name} 
+                      key={leaseManager.name} 
                     className="h-12 border-b border-[#4B2D84]/10 hover:bg-[#4B2D84]/5 transition-colors"
                   >
-                    <td className="py-3 px-4 font-medium text-[#4B2D84]">{leaseManager.name}</td>
-                    <td className="py-3 px-4 text-right font-semibold text-[#4B2D84]">
-                      {formatValue(leaseManager.totalGLA)} sqm
-                    </td>
-                    <td className="py-3 px-4 text-right text-gray-600">{leaseManager.dealsCount}</td>
-                    <td className="py-3 px-4 text-right text-gray-600">
-                      {formatValue(leaseManager.avgDealSize)} sqm
-                    </td>
-                    <td className="py-3 px-4 text-right text-gray-600">{leaseManager.avgDealDuration} days</td>
+                      <td className="py-3 px-4 font-medium text-[#4B2D84]">{leaseManager.name}</td>
+                      <td className="py-3 px-4 text-right text-gray-600">{leaseManager.dealsCount}</td>
+                      <td className="py-3 px-4 text-right text-gray-600">{formatValue(leaseManager.avgDealSize)} sqm</td>
+                      <td className="py-3 px-4 text-right text-gray-600">{leaseManager.avgDealDuration} days</td>
+                      <td className="py-3 px-4 text-right font-semibold text-[#4B2D84]">{formatValue(totalGLA)} sqm</td>
+                      <td className="py-3 px-4 text-right font-semibold text-[#4B2D84]">{formatValue(roundedTargetGLA)} sqm</td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="h-12 border-t border-[#4B2D84]/20 bg-white">
